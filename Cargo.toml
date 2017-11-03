@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Daniel Kavanagh <dan.kava13@gmail.com>"]
 
 [dependencies]
-cards = {path = "../cards"}
+cards = { git = "https://github.com/danno131313/rust-cards" }
