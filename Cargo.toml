@@ -5,3 +5,4 @@ authors = ["Daniel Kavanagh <dan.kava13@gmail.com>"]
 
 [dependencies]
 cards = { git = "https://github.com/danno131313/rust-cards" }
+ncurses = "5.86.0"
