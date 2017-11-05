@@ -1,17 +1,18 @@
 extern crate cards;
 extern crate ncurses;
-mod player;
 use cards::deck::Deck;
 use ncurses::*;
 use std::process::exit;
 
+
 fn main() {
     initscr();
     noecho();
-    raw();
     let mut max_y = 0;
     let mut max_x = 0;
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
+
+    raw();
 
     mvprintw(3, (max_x / 2 - 11), "Welcome to Egyptian War!\n");
 
@@ -20,7 +21,17 @@ fn main() {
     let mut ch: i32 = 0;
     while ch != 27 {
         if ch == 32 {
-            play();
+            let mut player1 = Deck::new_empty();
+            let mut player2 = Deck::new_empty();
+            let mut pile    = Deck::new();
+
+            pile.shuffle();
+            while pile.len() != 0 {
+                player1.add(pile.draw().expect("Deck is empty!"));
+                player2.add(pile.draw().expect("Deck is empty!"));
+            }
+
+            play(player1, player2, pile);
         } else {
             ch = getch();
         }
@@ -29,20 +40,32 @@ fn main() {
     exit(0);
 }
 
-fn play() {
+fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
     clear();
     let mut max_y = 0;
     let mut max_x = 0;
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
-    let mut player1 = Deck::new_empty();
-    let mut player2 = Deck::new_empty();
-
-    let mut deck = Deck::new();
-    deck.shuffle();
-
     mvprintw(1, 1, format!("Player 1: {} cards left", player1.len()).as_ref());
     mvprintw(1, max_x - 23, format!("Player 2: {} cards left", player2.len()).as_ref());
+
+    if pile.len() == 0 {
+        mvprintw(4, 1, "Player 1:");
+        mvprintw(5, 3, "A for drawing a card");
+        mvprintw(6, 3, "S for slappping");
+        mvprintw(8, 1, "Player 1:");
+        mvprintw(9, 3, "K for drawing a card");
+        mvprintw(10, 3, "L for slappping");
+        mvprintw(12, 1, "Player 1 goes first");
+        mvprintw(13, 1, "Press spacebar to continue...");
+
+        let mut ch = getch();
+        while ch != 32 {
+            ch = getch();
+        }
+        clear();
+    }
+
     getch();
     endwin();
     exit(0);
