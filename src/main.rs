@@ -66,6 +66,33 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
         clear();
     }
 
+    let mut game_over = false;
+    let mut p1_turn = true;
+
+    while !game_over {
+        clear();
+        mvprintw(1, 1, format!("Player 1: {} cards left", player1.len()).as_ref());
+        mvprintw(1, max_x - 23, format!("Player 2: {} cards left", player2.len()).as_ref());
+        let key = getch();
+        if p1_turn {
+            if key == 27 {
+                endwin();
+                exit(0);
+            }
+            if key == 32 {
+                let curr_card = player1.draw().expect("Deck is empty!");
+                pile.add(curr_card);
+                mvprintw(max_y / 2, max_x / 2, format!("{}", curr_card).as_ref());
+                p1_turn = false;
+            }
+        } else {
+            if key == 32 {
+                mvprintw(max_y / 2, max_x / 2, format!("{}", player2.draw().expect("Deck is empty!")).as_ref());
+                p1_turn = true;
+            }
+        }
+    }
+
     getch();
     endwin();
     exit(0);
