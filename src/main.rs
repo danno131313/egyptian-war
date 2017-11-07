@@ -1,6 +1,7 @@
 extern crate cards;
 extern crate ncurses;
 use cards::deck::Deck;
+use cards::cards::Card;
 use ncurses::*;
 use std::process::exit;
 
@@ -67,7 +68,9 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
     }
 
     let mut game_over = false;
-    let mut p1_turn = true;
+    let mut p1_turn   = true;
+    let mut face_off  = false;
+    let mut turns     = 0;
 
     while !game_over {
         clear();
@@ -79,25 +82,95 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
         let key = getch();
 
+        // 'Esc' key: exit game
         if key == 27 {
             endwin();
             exit(0);
         }
 
+        //if pile.len() > 0 && pile.show(pile.len() - 1).is_face() {
+        //    face_off = true;
+        //    let turns = get_turns(pile.show(pile.len() - 1));
+        //    for _ in 0..turns {
+        //        let curr_card = player1.draw().expect("Deck is empty!");
+        //        pile.add(curr_card);
+        //        
+        //    }
+        //}
+
+        // 'L' key: player1 slap
+        if key == 108 {
+            let mut message: &str = "";
+            if (pile.len() > 1) {
+                if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
+                    message = "Player 1 slapped a double!";
+                    player1.add_deck(&pile);
+                    pile = Deck::new_empty();
+                    getch();
+                } else if pile.len() > 2 {
+                    if pile.show(pile.len() -1).value == pile.show(pile.len() - 3).value {
+                        message = "Player 1 slapped a sandwich!";
+                        player1.add_deck(&pile);
+                        pile = Deck::new_empty();
+                    }
+                } else {
+                    message = "Player 1 slapped wrong :(";
+                }
+            }
+            clear();
+            mvprintw(max_y / 2, max_x / 2 - 5, message);
+            getch();
+            p1_turn = true;
+        }
+
+        // 'S' key: player2 slap
+        if key == 115 {
+            if (pile.len() > 1) {
+                if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
+                    println!("Player 2 slapped a double!");
+                    player2.add_deck(&pile);
+                    pile = Deck::new_empty()
+                } else if pile.len() > 2 {
+                    if pile.show(pile.len() -1).value == pile.show(pile.len() - 3).value {
+                        println!("Player 2 slapped a sandwich!");
+                        player2.add_deck(&pile);
+                        pile = Deck::new_empty();
+                    }
+                } else {
+                    println!("Player 2 didn't slap correctly :()");
+                }
+            }
+        }
+
         if p1_turn {
+            // 'K' key: player1 draw
             if key == 107 {
                 let curr_card = player1.draw().expect("Deck is empty!");
                 pile.add(curr_card);
-                p1_turn = false;
-            } else if key == 108 {
 
+                //if face_off {
+                //    if curr_card.is_face() {
+                //        p1_turn = false;
+                //    } else if turns == 0 {
+                //    // TO-DO
+                //    } else {
+                //        turns -= 1;
+                //    }
+                //}
+
+                //if curr_card.is_face() {
+                //    face_off = true;
+                //    turns = get_turns(&curr_card);
+                //    p1_turn = false;
+                //}
+                p1_turn = false;
             }
         } else {
+            // 'A' key: player2 draw
             if key == 97 {
                 let curr_card = player2.draw().expect("Deck is empty!");
                 pile.add(curr_card);
                 p1_turn = true;
-            } else if key == 115 {
 
             }
         }
@@ -106,4 +179,14 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
     getch();
     endwin();
     exit(0);
+}
+
+fn get_turns(card: &Card) -> usize {
+    match card.value {
+        Ace => 4,
+        King => 3,
+        Queen => 2,
+        Jack => 1,
+        _ => 0,
+    }
 }
