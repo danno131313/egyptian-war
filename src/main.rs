@@ -2,6 +2,7 @@ extern crate cards;
 extern crate ncurses;
 use cards::deck::Deck;
 use cards::cards::Card;
+use cards::cards::Value;
 use ncurses::*;
 use std::process::exit;
 
@@ -69,7 +70,7 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
     let mut game_over = false;
     let mut p1_turn   = true;
-    let mut face_off  = false;
+    let face_off  = false;
     let mut turns     = 0;
 
     while !game_over {
@@ -85,8 +86,8 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
         // 'L' key: player1 slap
         if key == 108 {
-            let mut message = "";
-            if (pile.len() > 1) {
+            let message: &str;
+            if pile.len() > 1 {
                 if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
                     message = "Player 1 slapped a double!";
                     player1.add_deck(&mut pile);
@@ -113,8 +114,8 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
         // 'S' key: player2 slap
         if key == 115 {
-            let mut message = "";
-            if (pile.len() > 1) {
+            let message: &str;
+            if pile.len() > 1 {
                 if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
                     message = "Player 2 slapped a double!";
                     player2.add_deck(&mut pile);
@@ -173,7 +174,7 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
         }
     }
     clear();
-    let mut winner = "";
+    let winner: &str;
     if player1.len() < 14 {
         winner = "Player 2";
     } else {
@@ -189,10 +190,10 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
 fn get_turns(card: &Card) -> usize {
     match card.value {
-        Ace => 4,
-        King => 3,
-        Queen => 2,
-        Jack => 1,
+        Value::Ace => 4,
+        Value::King => 3,
+        Value::Queen => 2,
+        Value::Jack => 1,
         _ => 0,
     }
 }
