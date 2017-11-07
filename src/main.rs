@@ -70,13 +70,17 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
     let mut game_over = false;
     let mut p1_turn   = true;
-    let face_off  = false;
+    let mut face_off  = false;
     let mut turns     = 0;
 
     while !game_over {
         update_scr(&player1, &player2, &pile, max_y, max_x);
 
-        let key = getch();
+        if face_off {
+            mvprintw(max_y / 2 - 2, max_x / 2 - 4, format!("Face off! {} tries remaining.", turns).as_ref());
+        }
+
+        let mut key = getch();
 
         // 'Esc' key: exit game
         if key == 27 {
@@ -141,31 +145,72 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
         }
 
         if p1_turn {
-            while face_off {
-                update_scr(&player1, &player2, &pile, max_y, max_x);
-                mvprintw(max_y / 2 - 2, max_x / 2 - 4, format!("Face off! {} tries remaining.", turns).as_ref());
-                if key == 107 {
-                    let curr_card = player1.draw().expect("Deck is empty!");
-                    pile.add(curr_card);
-                    if curr_card.is_face() {
-                        p1_turn = false;
-                        turns = get_turns(&curr_card);
+            if face_off {
+                if turns == 0 {
+                    clear();
+                    mvprintw(max_y / 2, max_x / 2 - 21, "You lost the face off! It's now player 2's turn.");
+                    player2.add_deck(&mut pile);
+                    p1_turn = false;
+                    face_off = false;
+                    let mut cont = getch();
+                    while cont != 32 {
+                        cont = getch();
+                    }
+                } else {
+                    update_scr(&player1, &player2, &pile, max_y, max_x);
+                    mvprintw(max_y / 2 - 2, max_x / 2 - 4, format!("Face off! {} tries remaining.", turns).as_ref());
+                    if key == 107 {
+                        let curr_card = player1.draw().expect("Deck is empty!");
+                        pile.add(curr_card);
+                        if curr_card.is_face() {
+                            p1_turn = false;
+                            turns = get_turns(&curr_card);
+                        } else {
+                            turns -= 1;
+                        }
                     }
                 }
-            }
-            // 'K' key: player1 draw
-            if key == 107 {
+            } else if key == 107 {
                 let curr_card = player1.draw().expect("Deck is empty!");
                 pile.add(curr_card);
                 p1_turn = false;
+                if curr_card.is_face() {
+                    face_off = true;
+                    turns = get_turns(&curr_card);
+                }
             }
         } else {
-            // 'A' key: player2 draw
-            if key == 97 {
+            if face_off {
+                if turns == 0 {
+                    clear();
+                    mvprintw(max_y / 2, max_x / 2 - 21, "You lost the face off! It's now player 1's turn.");
+                    player1.add_deck(&mut pile);
+                    p1_turn = true;
+                    face_off = false;
+                    let mut cont = getch();
+                    while cont != 32 {
+                        cont = getch();
+                    }
+                } else {
+                    if key == 107 {
+                        let curr_card = player2.draw().expect("Deck is empty!");
+                        pile.add(curr_card);
+                        if curr_card.is_face() {
+                            p1_turn = true;
+                            turns = get_turns(&curr_card);
+                        } else {
+                            turns -= 1;
+                        }
+                    }
+                }
+            } else if key == 97 {
                 let curr_card = player2.draw().expect("Deck is empty!");
                 pile.add(curr_card);
                 p1_turn = true;
-
+                if curr_card.is_face() {
+                    face_off = true;
+                    turns = get_turns(&curr_card);
+                }
             }
         }
 
