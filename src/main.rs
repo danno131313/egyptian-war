@@ -105,7 +105,10 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
             }
             clear();
             mvprintw(max_y / 2, max_x / 2 - 13, message);
-            getch();
+            let mut cont = getch();
+            while cont != 32 {
+                cont = getch();
+            }
         }
 
         // 'S' key: player2 slap
@@ -130,10 +133,25 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
             }
             clear();
             mvprintw(max_y / 2, max_x / 2 - 13, message);
-            getch();
+            let mut cont = getch();
+            while cont != 32 {
+                cont = getch();
+            }
         }
 
         if p1_turn {
+            while face_off {
+                update_scr(&player1, &player2, &pile, max_y, max_x);
+                mvprintw(max_y / 2 - 2, max_x / 2 - 4, format!("Face off! {} tries remaining.", turns).as_ref());
+                if key == 107 {
+                    let curr_card = player1.draw().expect("Deck is empty!");
+                    pile.add(curr_card);
+                    if curr_card.is_face() {
+                        p1_turn = false;
+                        turns = get_turns(&curr_card);
+                    }
+                }
+            }
             // 'K' key: player1 draw
             if key == 107 {
                 let curr_card = player1.draw().expect("Deck is empty!");
@@ -155,7 +173,14 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
         }
     }
     clear();
+    let mut winner = "";
+    if player1.len() < 14 {
+        winner = "Player 2";
+    } else {
+        winner = "Player 1";
+    }
     mvprintw(max_y / 2, max_x / 2 - 5, "Game Over!");
+    mvprintw(max_y / 2 + 2, max_x / 2 - 6, format!("{} wins!", winner).as_ref());
 
     getch();
     endwin();
