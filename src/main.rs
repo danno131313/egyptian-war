@@ -48,16 +48,15 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
     let mut max_x = 0;
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
-    mvprintw(1, 1, format!("Player 1: {} cards left", player1.len()).as_ref());
-    mvprintw(1, max_x - 23, format!("Player 2: {} cards left", player2.len()).as_ref());
+    update_scr(&player1, &player2, &pile, max_y, max_x);
 
     if pile.len() == 0 {
         mvprintw(4, 1, "Player 1:");
-        mvprintw(5, 3, "A for drawing a card");
-        mvprintw(6, 3, "S for slappping");
-        mvprintw(8, 1, "Player 1:");
-        mvprintw(9, 3, "K for drawing a card");
-        mvprintw(10, 3, "L for slappping");
+        mvprintw(5, 3, "K for drawing a card");
+        mvprintw(6, 3, "L for slappping");
+        mvprintw(8, 1, "Player 2:");
+        mvprintw(9, 3, "A for drawing a card");
+        mvprintw(10, 3, "S for slappping");
         mvprintw(12, 1, "Player 1 goes first");
         mvprintw(13, 1, "Press spacebar to continue...");
 
@@ -77,10 +76,10 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
         update_scr(&player1, &player2, &pile, max_y, max_x);
 
         if face_off {
-            mvprintw(max_y / 2 - 2, max_x / 2 - 4, format!("Face off! {} tries remaining.", turns).as_ref());
+            mvprintw(max_y / 2 - 2, max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
         }
 
-        let mut key = getch();
+        let key = getch();
 
         // 'Esc' key: exit game
         if key == 27 {
@@ -96,10 +95,12 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     message = "Player 1 slapped a double!";
                     player1.add_deck(&mut pile);
                     p1_turn = true;
+                    face_off = false;
                 } else if pile.len() > 2 && pile.show(pile.len() -1).value == pile.show(pile.len() - 3).value {
                     message = "Player 1 slapped a sandwich!";
                     player1.add_deck(&mut pile);
                     p1_turn = true;
+                    face_off = false;
                 } else {
                     message = "Player 1 slapped wrong :(";
                     pile.add_back(player1.draw().expect("Deck is empty!"));
@@ -124,10 +125,12 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     message = "Player 2 slapped a double!";
                     player2.add_deck(&mut pile);
                     p1_turn = false;
+                    face_off = false;
                 } else if pile.len() > 2 && pile.show(pile.len() -1).value == pile.show(pile.len() - 3).value {
                     message = "Player 2 slapped a sandwich!";
                     player2.add_deck(&mut pile);
                     p1_turn = false;
+                    face_off = false;
                 } else {
                     message = "Player 2 slapped wrong :(";
                     pile.add_back(player2.draw().expect("Deck is empty!"));
@@ -158,7 +161,7 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     }
                 } else {
                     update_scr(&player1, &player2, &pile, max_y, max_x);
-                    mvprintw(max_y / 2 - 2, max_x / 2 - 4, format!("Face off! {} tries remaining.", turns).as_ref());
+                    mvprintw(max_y / 2 - 2, max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
                     if key == 107 {
                         let curr_card = player1.draw().expect("Deck is empty!");
                         pile.add(curr_card);
@@ -192,7 +195,10 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                         cont = getch();
                     }
                 } else {
-                    if key == 107 {
+                    update_scr(&player1, &player2, &pile, max_y, max_x);
+                    mvprintw(max_y / 2 - 2, max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
+                    println!("{}", turns);
+                    if key == 97 {
                         let curr_card = player2.draw().expect("Deck is empty!");
                         pile.add(curr_card);
                         if curr_card.is_face() {
@@ -245,8 +251,8 @@ fn get_turns(card: &Card) -> usize {
 
 fn update_scr(player1: &Deck, player2: &Deck, pile: &Deck, max_y: i32, max_x: i32, ) {
     clear();
-    mvprintw(1, 1, format!("Player 1: {} cards left", player1.len()).as_ref());
-    mvprintw(1, max_x - 23, format!("Player 2: {} cards left", player2.len()).as_ref());
+    mvprintw(1, 1, format!("Player 2: {} cards left", player2.len()).as_ref());
+    mvprintw(1, max_x - 23, format!("Player 1: {} cards left", player1.len()).as_ref());
     if pile.len() != 0 {
         mvprintw(max_y / 2, max_x / 2 - 6, format!("{}", pile.show(pile.len() - 1)).as_ref());
     }
