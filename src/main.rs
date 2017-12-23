@@ -53,10 +53,10 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
     if pile.len() == 0 {
         mvprintw(4, 1, "Player 1:");
         mvprintw(5, 3, "K for drawing a card");
-        mvprintw(6, 3, "L for slappping");
+        mvprintw(6, 3, "L for slapping");
         mvprintw(8, 1, "Player 2:");
         mvprintw(9, 3, "A for drawing a card");
-        mvprintw(10, 3, "S for slappping");
+        mvprintw(10, 3, "S for slapping");
         mvprintw(12, 1, "Player 1 goes first");
         mvprintw(13, 1, "Press spacebar to continue...");
 
