@@ -1,4 +1,5 @@
 # egyptian-war
-Egyptian War (AKA Egyptian Ratscrew) card game implemented in Rust.
+Egyptian War (AKA Egyptian Ratscrew) card game implemented in Rust and Ncurses. 
 
-TO-DO: Update readme with game details and instructions once game works and is finished
+
+To-do: add instructions
