@@ -4,19 +4,11 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "cards"
-version = "0.1.0"
-source = "git+https://github.com/danno131313/rust-cards#b669cf95a6ab1de2b811248afc474c6bb0c5c74b"
-dependencies = [
- "rand 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "egyptian-war"
 version = "0.1.0"
 dependencies = [
- "cards 0.1.0 (git+https://github.com/danno131313/rust-cards)",
  "ncurses 5.86.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "simple-cards 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -69,9 +61,16 @@ dependencies = [
  "libc 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
+[[package]]
+name = "simple-cards"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "rand 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
 [metadata]
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
-"checksum cards 0.1.0 (git+https://github.com/danno131313/rust-cards)" = "<none>"
 "checksum fuchsia-zircon 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f6c0581a4e363262e52b87f59ee2afe3415361c6ec35e665924eb08afe8ff159"
 "checksum fuchsia-zircon-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "43f3795b4bae048dc6123a6b972cadde2e676f9ded08aef6bb77f5f157684a82"
 "checksum gcc 0.3.54 (registry+https://github.com/rust-lang/crates.io-index)" = "5e33ec290da0d127825013597dbdfc28bee4964690c7ce1166cbc2a7bd08b1bb"
@@ -79,3 +78,4 @@ dependencies = [
 "checksum ncurses 5.86.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e404cc633e25a50d3427c4202313a33375c0a559902cecce1dd2893dd226feb0"
 "checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
 "checksum rand 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)" = "61efcbcd9fa8d8fbb07c84e34a8af18a1ff177b449689ad38a6e9457ecc7b2ae"
+"checksum simple-cards 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2494dc91996f7e1b1cc003c27aba0b17ec6f1b0d1b99acdf9cf5d7d96bc0a3b7"

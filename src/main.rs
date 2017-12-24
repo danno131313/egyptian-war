@@ -1,8 +1,8 @@
-extern crate cards;
+extern crate simple_cards;
 extern crate ncurses;
-use cards::deck::Deck;
-use cards::cards::Card;
-use cards::cards::Value;
+use simple_cards::deck::Deck;
+use simple_cards::cards::Card;
+use simple_cards::cards::Value;
 use ncurses::*;
 use std::process::exit;
 
@@ -103,11 +103,11 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     face_off = false;
                 } else {
                     message = "Player 1 slapped wrong :(";
-                    pile.add_back(player1.draw().expect("Deck is empty!"));
+                    pile.add_bottom(player1.draw().expect("Deck is empty!"));
                 }
             } else {
                 message = "Player 1 slapped wrong :(";
-                pile.add_back(player1.draw().expect("Deck is empty!"));
+                pile.add_bottom(player1.draw().expect("Deck is empty!"));
             }
             clear();
             mvprintw(max_y / 2, max_x / 2 - 13, message);
@@ -133,11 +133,11 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     face_off = false;
                 } else {
                     message = "Player 2 slapped wrong :(";
-                    pile.add_back(player2.draw().expect("Deck is empty!"));
+                    pile.add_bottom(player2.draw().expect("Deck is empty!"));
                 }
             } else {
                 message = "Player 2 slapped wrong :(";
-                pile.add_back(player2.draw().expect("Deck is empty!"));
+                pile.add_bottom(player2.draw().expect("Deck is empty!"));
             }
             clear();
             mvprintw(max_y / 2, max_x / 2 - 13, message);
