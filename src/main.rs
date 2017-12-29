@@ -87,11 +87,11 @@ fn slap_handler(game: &mut Game, winner: u32) {
             game.face_off = false;
         } else {
             message = "Player 1 slapped wrong :(".to_string();
-            game.pile.add_back(player.draw().expect("Deck is empty!"));
+            game.pile.add_bottom(player.draw().expect("Deck is empty!"));
         }
     } else {
         message = "Player 1 slapped wrong :(".to_string();
-        game.pile.add_back(player.draw().expect("Deck is empty!"));
+        game.pile.add_bottom(player.draw().expect("Deck is empty!"));
     }
     clear();
     mvprintw(game.max_y / 2, game.max_x / 2 - 13, &message);
@@ -144,71 +144,13 @@ fn play(mut game: Game) {
 
         // 'L' key: player1 slap
         if key == 108 {
-<<<<<<< HEAD
             slap_handler(&mut game, 1);
-=======
-            let message: &str;
-            if pile.len() > 1 {
-                if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
-                    message = "Player 1 slapped a double!";
-                    player1.add_deck(&mut pile);
-                    p1_turn = true;
-                    face_off = false;
-                } else if pile.len() > 2 && pile.show(pile.len() -1).value == pile.show(pile.len() - 3).value {
-                    message = "Player 1 slapped a sandwich!";
-                    player1.add_deck(&mut pile);
-                    p1_turn = true;
-                    face_off = false;
-                } else {
-                    message = "Player 1 slapped wrong :(";
-                    pile.add_bottom(player1.draw().expect("Deck is empty!"));
-                }
-            } else {
-                message = "Player 1 slapped wrong :(";
-                pile.add_bottom(player1.draw().expect("Deck is empty!"));
-            }
-            clear();
-            mvprintw(max_y / 2, max_x / 2 - 13, message);
-            let mut cont = getch();
-            while cont != 32 {
-                cont = getch();
-            }
->>>>>>> c89f053569782e4e808c57e53c3b4cf32dd243ec
         }
 
 
         // 'S' key: player2 slap
         if key == 115 {
-<<<<<<< HEAD
             slap_handler(&mut game, 2);
-=======
-            let message: &str;
-            if pile.len() > 1 {
-                if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
-                    message = "Player 2 slapped a double!";
-                    player2.add_deck(&mut pile);
-                    p1_turn = false;
-                    face_off = false;
-                } else if pile.len() > 2 && pile.show(pile.len() -1).value == pile.show(pile.len() - 3).value {
-                    message = "Player 2 slapped a sandwich!";
-                    player2.add_deck(&mut pile);
-                    p1_turn = false;
-                    face_off = false;
-                } else {
-                    message = "Player 2 slapped wrong :(";
-                    pile.add_bottom(player2.draw().expect("Deck is empty!"));
-                }
-            } else {
-                message = "Player 2 slapped wrong :(";
-                pile.add_bottom(player2.draw().expect("Deck is empty!"));
-            }
-            clear();
-            mvprintw(max_y / 2, max_x / 2 - 13, message);
-            let mut cont = getch();
-            while cont != 32 {
-                cont = getch();
-            }
->>>>>>> c89f053569782e4e808c57e53c3b4cf32dd243ec
         }
 
         if game.p1_turn {
