@@ -3,6 +3,9 @@ name = "egyptian-war"
 version = "0.1.0"
 authors = ["Daniel Kavanagh <dan.kava13@gmail.com>"]
 
+[profile.release]
+opt-level = 3
+
 [dependencies]
 simple-cards = "1.0.1"
 ncurses = "5.86.0"
