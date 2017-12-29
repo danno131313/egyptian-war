@@ -6,6 +6,15 @@ use simple_cards::cards::Value;
 use ncurses::*;
 use std::process::exit;
 
+struct Game {
+    player1: Deck,
+    player2: Deck,
+    pile: Deck,
+    max_y: i32,
+    max_x: i32,
+    face_off: bool,
+    p1_turn: bool,
+}
 
 fn main() {
     initscr();
@@ -33,7 +42,16 @@ fn main() {
                 player2.add(pile.draw().expect("Deck is empty!"));
             }
 
-            play(player1, player2, pile);
+            let game = Game {
+                player1: player1,
+                player2: player2,
+                pile: pile,
+                max_y: max_y,
+                max_x: max_x,
+                face_off: false,
+                p1_turn: true,
+            };
+            play(game);
         } else {
             ch = getch();
         }
@@ -42,15 +60,54 @@ fn main() {
     exit(0);
 }
 
-fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
+fn slap_handler(game: &mut Game, winner: u32) {
+    let message: String;
+    let player: &mut Deck;
+    let p1_next_turn: bool;
+    let name: &'static str;
+    if winner == 1 {
+        player = &mut game.player1;
+        p1_next_turn = true;
+        name = "Player 1";
+    } else {
+        player = &mut game.player2;
+        p1_next_turn = false;
+        name = "Player 2";
+    }
+    if game.pile.len() > 1 {
+        if game.pile.show(game.pile.len() - 1).value == game.pile.show(game.pile.len() - 2).value {
+            message = "Player 1 slapped a double!".to_string();
+            player.add_deck(&mut game.pile);
+            game.p1_turn = p1_next_turn;
+            game.face_off = false;
+        } else if game.pile.len() > 2 && game.pile.show(game.pile.len() -1).value == game.pile.show(game.pile.len() - 3).value {
+            message = format!("{} {}", name, "slapped a sandwich!");
+            player.add_deck(&mut game.pile);
+            game.p1_turn = p1_next_turn;
+            game.face_off = false;
+        } else {
+            message = "Player 1 slapped wrong :(".to_string();
+            game.pile.add_back(player.draw().expect("Deck is empty!"));
+        }
+    } else {
+        message = "Player 1 slapped wrong :(".to_string();
+        game.pile.add_back(player.draw().expect("Deck is empty!"));
+    }
     clear();
-    let mut max_y = 0;
-    let mut max_x = 0;
-    getmaxyx(stdscr(), &mut max_y, &mut max_x);
+    mvprintw(game.max_y / 2, game.max_x / 2 - 13, &message);
+    let mut cont = getch();
+    while cont != 32 {
+        cont = getch();
+    }
+}
 
-    update_scr(&player1, &player2, &pile, max_y, max_x);
+fn play(mut game: Game) {
+    clear();
+    getmaxyx(stdscr(), &mut game.max_y, &mut game.max_x);
 
-    if pile.len() == 0 {
+    update_scr(&game);
+
+    if game.pile.len() == 0 {
         mvprintw(4, 1, "Player 1:");
         mvprintw(5, 3, "K for drawing a card");
         mvprintw(6, 3, "L for slapping");
@@ -68,15 +125,13 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
     }
 
     let mut game_over = false;
-    let mut p1_turn   = true;
-    let mut face_off  = false;
     let mut turns     = 0;
 
     while !game_over {
-        update_scr(&player1, &player2, &pile, max_y, max_x);
+        update_scr(&game);
 
-        if face_off {
-            mvprintw(max_y / 2 - 2, max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
+        if game.face_off {
+            mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
         }
 
         let key = getch();
@@ -89,6 +144,9 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
 
         // 'L' key: player1 slap
         if key == 108 {
+<<<<<<< HEAD
+            slap_handler(&mut game, 1);
+=======
             let message: &str;
             if pile.len() > 1 {
                 if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
@@ -115,10 +173,15 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
             while cont != 32 {
                 cont = getch();
             }
+>>>>>>> c89f053569782e4e808c57e53c3b4cf32dd243ec
         }
+
 
         // 'S' key: player2 slap
         if key == 115 {
+<<<<<<< HEAD
+            slap_handler(&mut game, 2);
+=======
             let message: &str;
             if pile.len() > 1 {
                 if pile.show(pile.len() - 1).value == pile.show(pile.len() - 2).value {
@@ -145,28 +208,29 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
             while cont != 32 {
                 cont = getch();
             }
+>>>>>>> c89f053569782e4e808c57e53c3b4cf32dd243ec
         }
 
-        if p1_turn {
-            if face_off {
+        if game.p1_turn {
+            if game.face_off {
                 if turns == 0 {
                     clear();
-                    mvprintw(max_y / 2, max_x / 2 - 21, "You lost the face off! It's now player 2's turn.");
-                    player2.add_deck(&mut pile);
-                    p1_turn = false;
-                    face_off = false;
+                    mvprintw(game.max_y / 2, game.max_x / 2 - 21, "You lost the face off! It's now player 2's turn.");
+                    game.player2.add_deck(&mut game.pile);
+                    game.p1_turn = false;
+                    game.face_off = false;
                     let mut cont = getch();
                     while cont != 32 {
                         cont = getch();
                     }
                 } else {
-                    update_scr(&player1, &player2, &pile, max_y, max_x);
-                    mvprintw(max_y / 2 - 2, max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
+                    update_scr(&game);
+                    mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
                     if key == 107 {
-                        let curr_card = player1.draw().expect("Deck is empty!");
-                        pile.add(curr_card);
+                        let curr_card = game.player1.draw().expect("Deck is empty!");
+                        game.pile.add(curr_card);
                         if curr_card.is_face() {
-                            p1_turn = false;
+                            game.p1_turn = false;
                             turns = get_turns(&curr_card);
                         } else {
                             turns -= 1;
@@ -174,35 +238,35 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     }
                 }
             } else if key == 107 {
-                let curr_card = player1.draw().expect("Deck is empty!");
-                pile.add(curr_card);
-                p1_turn = false;
+                let curr_card = game.player1.draw().expect("Deck is empty!");
+                game.pile.add(curr_card);
+                game.p1_turn = false;
                 if curr_card.is_face() {
-                    face_off = true;
+                    game.face_off = true;
                     turns = get_turns(&curr_card);
                 }
             }
         } else {
-            if face_off {
+            if game.face_off {
                 if turns == 0 {
                     clear();
-                    mvprintw(max_y / 2, max_x / 2 - 21, "You lost the face off! It's now player 1's turn.");
-                    player1.add_deck(&mut pile);
-                    p1_turn = true;
-                    face_off = false;
+                    mvprintw(game.max_y / 2, game.max_x / 2 - 21, "You lost the face off! It's now player 1's turn.");
+                    game.player1.add_deck(&mut game.pile);
+                    game.p1_turn = true;
+                    game.face_off = false;
                     let mut cont = getch();
                     while cont != 32 {
                         cont = getch();
                     }
                 } else {
-                    update_scr(&player1, &player2, &pile, max_y, max_x);
-                    mvprintw(max_y / 2 - 2, max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
+                    update_scr(&game);
+                    mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
                     println!("{}", turns);
                     if key == 97 {
-                        let curr_card = player2.draw().expect("Deck is empty!");
-                        pile.add(curr_card);
+                        let curr_card = game.player2.draw().expect("Deck is empty!");
+                        game.pile.add(curr_card);
                         if curr_card.is_face() {
-                            p1_turn = true;
+                            game.p1_turn = true;
                             turns = get_turns(&curr_card);
                         } else {
                             turns -= 1;
@@ -210,29 +274,29 @@ fn play(mut player1: Deck, mut player2: Deck, mut pile: Deck) {
                     }
                 }
             } else if key == 97 {
-                let curr_card = player2.draw().expect("Deck is empty!");
-                pile.add(curr_card);
-                p1_turn = true;
+                let curr_card = game.player2.draw().expect("Deck is empty!");
+                game.pile.add(curr_card);
+                game.p1_turn = true;
                 if curr_card.is_face() {
-                    face_off = true;
+                    game.face_off = true;
                     turns = get_turns(&curr_card);
                 }
             }
         }
 
-        if player1.len() < 14 || player2.len() < 14 {
+        if game.player1.len() < 14 || game.player2.len() < 14 {
             game_over = true;
         }
     }
     clear();
     let winner: &str;
-    if player1.len() < 14 {
+    if game.player1.len() < 10 {
         winner = "Player 2";
     } else {
         winner = "Player 1";
     }
-    mvprintw(max_y / 2, max_x / 2 - 5, "Game Over!");
-    mvprintw(max_y / 2 + 2, max_x / 2 - 6, format!("{} wins!", winner).as_ref());
+    mvprintw(game.max_y / 2, game.max_x / 2 - 5, "Game Over!");
+    mvprintw(game.max_y / 2 + 2, game.max_x / 2 - 6, format!("{} wins!", winner).as_ref());
 
     getch();
     endwin();
@@ -249,11 +313,11 @@ fn get_turns(card: &Card) -> usize {
     }
 }
 
-fn update_scr(player1: &Deck, player2: &Deck, pile: &Deck, max_y: i32, max_x: i32, ) {
+fn update_scr(game: &Game) {
     clear();
-    mvprintw(1, 1, format!("Player 2: {} cards left", player2.len()).as_ref());
-    mvprintw(1, max_x - 23, format!("Player 1: {} cards left", player1.len()).as_ref());
-    if pile.len() != 0 {
-        mvprintw(max_y / 2, max_x / 2 - 6, format!("{}", pile.show(pile.len() - 1)).as_ref());
+    mvprintw(1, 1, format!("Player 2: {} cards left", game.player2.len()).as_ref());
+    mvprintw(1, game.max_x - 23, format!("Player 1: {} cards left", game.player1.len()).as_ref());
+    if game.pile.len() != 0 {
+        mvprintw(game.max_y / 2, game.max_x / 2 - 6, format!("{}", game.pile.show(game.pile.len() - 1)).as_ref());
     }
 }
