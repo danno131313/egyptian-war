@@ -96,7 +96,13 @@ fn play(mut game: Game) {
         update_scr(&game);
 
         if game.face_off {
-            mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining.", turns).as_ref());
+            let curr_name: &str;
+            if game.p1_turn == true {
+                curr_name = "player 1";
+            } else {
+                curr_name = "player 2";
+            }
+            mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining for {}.", turns, curr_name).as_ref());
         }
 
         let key = getch();
@@ -117,10 +123,8 @@ fn play(mut game: Game) {
             game = slap_handler(game, 2);
         }
 
-        if game.p1_turn {
-            game = turn_handler(game, &mut turns, 117, 1);
-        } else {
-            game = turn_handler(game, &mut turns, 97, 2);
+        if key == 107 || key == 97 {
+            game = turn_handler(game, &mut turns, key);
         }
 
         if game.player1.len() < 14 || game.player2.len() < 14 {
