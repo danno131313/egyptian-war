@@ -49,11 +49,11 @@ fn main() {
             }
 
             let game = Game {
-                player1: player1,
-                player2: player2,
-                pile: pile,
-                max_y: max_y,
-                max_x: max_x,
+                player1,
+                player2,
+                pile,
+                max_y,
+                max_x,
                 face_off: false,
                 p1_turn: true,
             };
@@ -128,7 +128,7 @@ fn play(mut game: Game) {
         }
     }
     clear();
-    let winner: &str;
+    let mut winner: &str;
     if game.player1.len() < 10 {
         winner = "Player 2";
     } else {
