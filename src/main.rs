@@ -34,7 +34,7 @@ fn main() {
     mvprintw(3, (max_x / 2 - 11), "Welcome to Egyptian War!\n");
 
     mvprintw(max_y / 2 - 1, 1, "Press spacebar to play!");
-    
+
     let mut ch: i32 = 0;
     while ch != 27 {
         if ch == 32 {
@@ -132,7 +132,7 @@ fn play(mut game: Game) {
         }
     }
     clear();
-    let mut winner: &str;
+    let winner: &str;
     if game.player1.len() < 10 {
         winner = "Player 2";
     } else {
