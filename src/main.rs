@@ -25,17 +25,18 @@ pub struct Game {
 fn main() {
     initscr();
     noecho();
+    raw();
+
     let mut max_y = 0;
     let mut max_x = 0;
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
-
-    raw();
 
     mvprintw(3, (max_x / 2 - 11), "Welcome to Egyptian War!\n");
 
     mvprintw(max_y / 2 - 1, 1, "Press spacebar to play!");
 
     let mut ch: i32 = 0;
+
     while ch != 27 {
         if ch == 32 {
             let mut player1 = Deck::new_empty();
@@ -43,6 +44,7 @@ fn main() {
             let mut pile    = Deck::new();
 
             pile.shuffle();
+
             while pile.len() != 0 {
                 player1.add(pile.draw().expect("Deck is empty!"));
                 player2.add(pile.draw().expect("Deck is empty!"));
@@ -57,11 +59,13 @@ fn main() {
                 face_off: false,
                 p1_turn: true,
             };
+
             play(game);
         } else {
             ch = getch();
         }
     }
+
     endwin();
     exit(0);
 }
@@ -96,12 +100,11 @@ fn play(mut game: Game) {
         update_scr(&game);
 
         if game.face_off {
-            let curr_name: &str;
-            if game.p1_turn == true {
-                curr_name = "player 1";
+            let curr_name = if game.p1_turn == true {
+                "player 1"
             } else {
-                curr_name = "player 2";
-            }
+                "player 2"
+            };
             mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining for {}.", turns, curr_name).as_ref());
         }
 
@@ -132,12 +135,13 @@ fn play(mut game: Game) {
         }
     }
     clear();
-    let winner: &str;
-    if game.player1.len() < 10 {
-        winner = "Player 2";
+
+    let winner = if game.player1.len() < 10 {
+        "Player 2"
     } else {
-        winner = "Player 1";
-    }
+        "Player 1"
+    };
+
     mvprintw(game.max_y / 2, game.max_x / 2 - 5, "Game Over!");
     mvprintw(game.max_y / 2 + 2, game.max_x / 2 - 6, format!("{} wins!", winner).as_ref());
 
