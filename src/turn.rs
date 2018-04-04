@@ -1,8 +1,8 @@
-use simple_cards::deck::Deck;
+use super::{get_turns, Game};
 use ncurses::*;
-use super::{Game, get_turns};
+use simple_cards::deck::Deck;
 
-pub fn turn_handler(mut game: Game, turns: &mut usize, key: i32) -> Game {
+pub fn turn_handler(game: &mut Game, turns: &mut usize, key: i32) {
     {
         let this_player: &mut Deck;
         let other_player: &mut Deck;
@@ -31,7 +31,14 @@ pub fn turn_handler(mut game: Game, turns: &mut usize, key: i32) -> Game {
             if *turns == 0 {
                 clear();
 
-                mvprintw(game.max_y / 2, game.max_x / 2 - 21, format!("{} lost the face off! It's now {}'s turn.", curr_name, other_name).as_ref());
+                mvprintw(
+                    game.max_y / 2,
+                    game.max_x / 2 - 21,
+                    format!(
+                        "{} lost the face off! It's now {}'s turn.",
+                        curr_name, other_name
+                    ).as_ref(),
+                );
 
                 other_player.add_deck(&mut game.pile);
 
@@ -70,5 +77,4 @@ pub fn turn_handler(mut game: Game, turns: &mut usize, key: i32) -> Game {
             }
         }
     }
-    game
 }

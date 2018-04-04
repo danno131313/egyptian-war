@@ -1,16 +1,33 @@
-extern crate simple_cards;
 extern crate ncurses;
+extern crate simple_cards;
+#[macro_use]
+extern crate lazy_static;
 
-mod turn;
 mod slap;
+mod turn;
 
-use turn::*;
-use slap::*;
-use simple_cards::deck::Deck;
+use ncurses::*;
 use simple_cards::cards::Card;
 use simple_cards::cards::Value;
-use ncurses::*;
+use simple_cards::deck::Deck;
+use slap::*;
 use std::process::exit;
+use std::sync::Mutex;
+use turn::*;
+
+lazy_static! {
+    static ref GAME_MUTEX: Mutex<Game> = {
+        Mutex::new(Game {
+            player1: Deck::new_empty(),
+            player2: Deck::new_empty(),
+            pile: Deck::new(),
+            face_off: false,
+            max_x: 0,
+            max_y: 0,
+            p1_turn: true,
+        })
+    };
+}
 
 pub struct Game {
     player1: Deck,
@@ -31,7 +48,7 @@ fn main() {
     let mut max_x = 0;
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
-    mvprintw(3, (max_x / 2 - 11), "Welcome to Egyptian War!\n");
+    mvprintw(3, max_x / 2 - 11, "Welcome to Egyptian War!\n");
 
     mvprintw(max_y / 2 - 1, 1, "Press spacebar to play!");
 
@@ -39,28 +56,22 @@ fn main() {
 
     while ch != 27 {
         if ch == 32 {
-            let mut player1 = Deck::new_empty();
-            let mut player2 = Deck::new_empty();
-            let mut pile    = Deck::new();
+            let mut game = GAME_MUTEX.lock().unwrap();
 
-            pile.shuffle();
+            game.pile.shuffle();
 
-            while pile.len() != 0 {
-                player1.add(pile.draw().expect("Deck is empty!"));
-                player2.add(pile.draw().expect("Deck is empty!"));
+            while game.pile.len() != 0 {
+                let card1 = game.pile.draw().expect("Deck is empty!");
+                let card2 = game.pile.draw().expect("Deck is empty!");
+                game.player1.add(card1);
+                game.player2.add(card2);
             }
 
-            let game = Game {
-                player1,
-                player2,
-                pile,
-                max_y,
-                max_x,
-                face_off: false,
-                p1_turn: true,
-            };
+            game.max_x = max_x;
+            game.max_y = max_y;
+            drop(game);
 
-            play(game);
+            play();
         } else {
             ch = getch();
         }
@@ -70,9 +81,13 @@ fn main() {
     exit(0);
 }
 
-fn play(mut game: Game) {
+fn play() {
+    let mut game = GAME_MUTEX.lock().unwrap();
+
     clear();
-    getmaxyx(stdscr(), &mut game.max_y, &mut game.max_x);
+    let mut max_y: i32 = 0;
+    let mut max_x: i32 = 0;
+    getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
     update_scr(&game);
 
@@ -94,7 +109,7 @@ fn play(mut game: Game) {
     }
 
     let mut game_over = false;
-    let mut turns     = 0;
+    let mut turns = 0;
 
     while !game_over {
         update_scr(&game);
@@ -105,10 +120,18 @@ fn play(mut game: Game) {
             } else {
                 "player 2"
             };
-            mvprintw(game.max_y / 2 - 2, game.max_x / 2 - 14, format!("Face off! {} tries remaining for {}.", turns, curr_name).as_ref());
+            mvprintw(
+                game.max_y / 2 - 2,
+                game.max_x / 2 - 14,
+                format!("Face off! {} tries remaining for {}.", turns, curr_name).as_ref(),
+            );
         }
 
         let key = getch();
+
+        if game.player1.len() < 14 || game.player2.len() < 14 {
+            game_over = true;
+        }
 
         // 'Esc' key: exit game
         if key == 27 {
@@ -118,20 +141,16 @@ fn play(mut game: Game) {
 
         // 'L' key: player1 slap
         if key == 108 {
-            game = slap_handler(game, 1);
+            slap_handler(&mut game, 1);
         }
 
         // 'S' key: player2 slap
         if key == 115 {
-            game = slap_handler(game, 2);
+            slap_handler(&mut game, 2);
         }
 
         if key == 107 || key == 97 {
-            game = turn_handler(game, &mut turns, key);
-        }
-
-        if game.player1.len() < 14 || game.player2.len() < 14 {
-            game_over = true;
+            turn_handler(&mut game, &mut turns, key);
         }
     }
     clear();
@@ -143,7 +162,11 @@ fn play(mut game: Game) {
     };
 
     mvprintw(game.max_y / 2, game.max_x / 2 - 5, "Game Over!");
-    mvprintw(game.max_y / 2 + 2, game.max_x / 2 - 6, format!("{} wins!", winner).as_ref());
+    mvprintw(
+        game.max_y / 2 + 2,
+        game.max_x / 2 - 6,
+        format!("{} wins!", winner).as_ref(),
+    );
 
     getch();
     endwin();
@@ -162,9 +185,21 @@ fn get_turns(card: &Card) -> usize {
 
 fn update_scr(game: &Game) {
     clear();
-    mvprintw(1, 1, format!("Player 2: {} cards left", game.player2.len()).as_ref());
-    mvprintw(1, game.max_x - 23, format!("Player 1: {} cards left", game.player1.len()).as_ref());
+    mvprintw(
+        1,
+        1,
+        format!("Player 2: {} cards left", game.player2.len()).as_ref(),
+    );
+    mvprintw(
+        1,
+        game.max_x - 23,
+        format!("Player 1: {} cards left", game.player1.len()).as_ref(),
+    );
     if game.pile.len() != 0 {
-        mvprintw(game.max_y / 2, game.max_x / 2 - 6, format!("{}", game.pile.show(game.pile.len() - 1)).as_ref());
+        mvprintw(
+            game.max_y / 2,
+            game.max_x / 2 - 6,
+            format!("{}", game.pile.show(game.pile.len() - 1)).as_ref(),
+        );
     }
 }

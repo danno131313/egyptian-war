@@ -1,8 +1,8 @@
-use simple_cards::deck::Deck;
-use ncurses::*;
 use super::Game;
+use ncurses::*;
+use simple_cards::deck::Deck;
 
-pub fn slap_handler(mut game: Game, winner: u32) -> Game {
+pub fn slap_handler(game: &mut Game, winner: u32) {
     {
         let message: String;
         let player: &mut Deck;
@@ -18,14 +18,19 @@ pub fn slap_handler(mut game: Game, winner: u32) -> Game {
         };
 
         if game.pile.len() > 1 {
-            if game.pile.show(game.pile.len() - 1).value == game.pile.show(game.pile.len() - 2).value {
+            if game.pile.show(game.pile.len() - 1).value
+                == game.pile.show(game.pile.len() - 2).value
+            {
                 message = format!("{} {}", name, "slapped a double!");
 
                 player.add_deck(&mut game.pile);
 
                 game.p1_turn = p1_next_turn;
                 game.face_off = false;
-            } else if game.pile.len() > 2 && game.pile.show(game.pile.len() -1).value == game.pile.show(game.pile.len() - 3).value {
+            } else if game.pile.len() > 2
+                && game.pile.show(game.pile.len() - 1).value
+                    == game.pile.show(game.pile.len() - 3).value
+            {
                 message = format!("{} {}", name, "slapped a sandwich!");
 
                 player.add_deck(&mut game.pile);
@@ -53,5 +58,4 @@ pub fn slap_handler(mut game: Game, winner: u32) -> Game {
             cont = getch();
         }
     }
-    game
 }

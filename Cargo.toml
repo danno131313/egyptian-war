@@ -9,3 +9,4 @@ opt-level = 3
 [dependencies]
 simple-cards = "1.0.1"
 ncurses = "5.86.0"
+lazy_static = "1.0.0"
